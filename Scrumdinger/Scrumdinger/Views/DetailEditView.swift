@@ -8,9 +8,9 @@
 import SwiftUI
 
 struct DetailEditView: View {
-    @State private var scrum = DailyScrum.emptyScrum
+    @Binding var scrum: DailyScrum
     @State private var newAttendeeName = ""
-    
+
     var body: some View {
         Form {
             Section(header: Text("Meeting Info")) {
@@ -24,27 +24,28 @@ struct DetailEditView: View {
                     Text("\(scrum.lengthInMinutes) minutes")
                         .accessibilityHidden(true)
                 }
-                Section(header: Text("Attendees")) {
-                    ForEach(scrum.attendees) { attendee in
-                        Text(attendee.name)
-                    }
-                    .onDelete { indices in
-                        scrum.attendees.remove(atOffsets: indices)
-                    }
-                    HStack {
-                        TextField("New Attendee", text: $newAttendeeName)
-                        Button(action: {
-                            withAnimation {
-                                let attendee = DailyScrum.Attendee(name: newAttendeeName)
-                                scrum.attendees.append(attendee)
-                                newAttendeeName = ""
-                            }
-                        }) {
-                            Image(systemName: "plus.circle.fill")
-                                .accessibilityLabel("Add Attendees")
+                ThemePicker(selection: $scrum.theme)
+            }
+            Section(header: Text("Attendees")) {
+                ForEach(scrum.attendees) { attendee in
+                    Text(attendee.name)
+                }
+                .onDelete { indices in
+                    scrum.attendees.remove(atOffsets: indices)
+                }
+                HStack {
+                    TextField("New Attendee", text: $newAttendeeName)
+                    Button(action: {
+                        withAnimation {
+                            let attendee = DailyScrum.Attendee(name: newAttendeeName)
+                            scrum.attendees.append(attendee)
+                            newAttendeeName = ""
                         }
-                        .disabled(newAttendeeName.isEmpty)
+                    }) {
+                        Image(systemName: "plus.circle.fill")
+                            .accessibilityLabel("Add attendee")
                     }
+                    .disabled(newAttendeeName.isEmpty)
                 }
             }
         }
@@ -53,6 +54,6 @@ struct DetailEditView: View {
 
 struct DetailEditView_Previews: PreviewProvider {
     static var previews: some View {
-        DetailEditView()
+        DetailEditView(scrum: .constant(DailyScrum.sampleData[0]))
     }
 }
